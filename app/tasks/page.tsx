@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import { CheckCircle2, Clock, ListTodo, LogOut, Filter } from "lucide-react";
+import TaskCard from "@/components/TaskCard";
 
 interface Task {
   id: number;
@@ -74,44 +75,40 @@ export default function TasksPage() {
 
           <button
             onClick={() => setFilter("all")}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              filter === "all"
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "all"
                 ? "bg-blue-600 text-white"
                 : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-            }`}
+              }`}
           >
             Todas
           </button>
 
           <button
             onClick={() => setFilter("pending")}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              filter === "pending"
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "pending"
                 ? "bg-orange-500 text-white"
                 : "bg-orange-100 text-orange-700 hover:bg-orange-200"
-            }`}
+              }`}
           >
             Pendientes
           </button>
 
           <button
             onClick={() => setFilter("in_progress")}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              filter === "in_progress"
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "in_progress"
                 ? "bg-yellow-500 text-white"
                 : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-            }`}
+              }`}
           >
             En progreso
           </button>
 
           <button
             onClick={() => setFilter("completed")}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              filter === "completed"
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "completed"
                 ? "bg-green-500 text-white"
                 : "bg-green-100 text-green-700 hover:bg-green-200"
-            }`}
+              }`}
           >
             Completadas
           </button>
@@ -124,38 +121,13 @@ export default function TasksPage() {
         ) : (
           <div className="grid gap-4">
             {filteredTasks.map((task) => (
-              <div
+              <TaskCard
                 key={task.id}
-                className="bg-white rounded-2xl shadow p-5 flex items-start justify-between"
-              >
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    {task.title}
-                  </h2>
-                  {task.description && (
-                    <p className="text-gray-600 mt-1">{task.description}</p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  {task.status === "pending" && (
-                    <span className="flex items-center gap-1 text-orange-600">
-                      <Clock size={16} /> Pendiente
-                    </span>
-                  )}
-                  {task.status === "in_progress" && (
-                    <span className="flex items-center gap-1 text-blue-600">
-                      <ListTodo size={16} /> En progreso
-                    </span>
-                  )}
-                  {task.status === "completed" && (
-                    <span className="flex items-center gap-1 text-green-600">
-                      <CheckCircle2 size={16} /> Completada
-                    </span>
-                  )}
-                </div>
-              </div>
+                task={task}
+                onUpdated={reloadTasks}
+              />
             ))}
+
           </div>
         )}
       </div>
