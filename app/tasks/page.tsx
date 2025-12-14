@@ -6,6 +6,7 @@ import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskCard from "@/components/TaskCard";
 import { LogOut, Filter } from "lucide-react";
 import { getMyTasks, getMyTasksByStatus } from "@/services/tasks";
+import { logoutUser } from "@/services/auth";
 
 
 interface Task {
@@ -64,22 +65,14 @@ export default function TasksPage() {
     }
   };
 
-
   const logout = async () => {
-  const token = localStorage.getItem("access_token");
-
-  if (token) {
-    await fetch("http://localhost:8000/auth/logout", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-
-  localStorage.removeItem("access_token");
-  router.push("/login");
-};
+    try {
+      await logoutUser();
+    } finally {
+      localStorage.removeItem("access_token");
+      router.push("/login");
+    }
+  };
 
 
   return (

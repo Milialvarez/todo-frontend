@@ -39,3 +39,16 @@ export async function loginUser(email: string, password: string) {
 
   return res.json(); 
 }
+
+export async function logoutUser() {
+  const token = localStorage.getItem("access_token");
+
+  if (!token) return;
+
+  await fetch(`${API_URL}/auth/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
