@@ -57,9 +57,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
-          ¿No tenés cuenta? <span className="text-blue-500 cursor-pointer hover:underline">Registrate</span>
-        </div>
+        <p className="text-center text-sm text-gray-500 mt-6">
+          ¿No tenés cuenta?{" "}
+          <a href="/register" className="text-blue-600 hover:underline font-medium">
+            Registrate
+          </a>
+        </p>
       </div>
     </div>
   );
