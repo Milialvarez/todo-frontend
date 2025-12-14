@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CreateTaskModal from "@/components/CreateTaskModal";
-import { CheckCircle2, Clock, ListTodo, LogOut, Filter } from "lucide-react";
 import TaskCard from "@/components/TaskCard";
+import { LogOut, Filter } from "lucide-react";
+import { getMyTasks, getMyTasksByStatus } from "@/services/tasks";
+
 
 interface Task {
   id: number;
@@ -19,6 +21,19 @@ export default function TasksPage() {
   const [filter, setFilter] = useState<"all" | Task["status"]>("all");
   const [loading, setLoading] = useState(true);
 
+  const loadTasks = async () => {
+    try {
+      const data = await getMyTasks();
+      setTasks(data);
+    } catch (err: any) {
+      if (err.message === "UNAUTHORIZED") {
+        router.push("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -26,28 +41,29 @@ export default function TasksPage() {
       return;
     }
 
-    fetch("http://localhost:8000/tasks/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          router.push("/login");
-          return [];
-        }
-        return res.json();
-      })
-      .then((data) => setTasks(data))
-      .finally(() => setLoading(false));
+    loadTasks();
   }, [router]);
 
-  const filteredTasks =
-    filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
+  const applyFilter = async (value: "all" | Task["status"]) => {
+    setFilter(value);
+    setLoading(true);
 
-  const reloadTasks = () => {
-    router.push("/tasks")
+    try {
+      const data =
+        value === "all"
+          ? await getMyTasks()
+          : await getMyTasksByStatus(value);
+
+      setTasks(data);
+    } catch (err: any) {
+      if (err.message === "UNAUTHORIZED") {
+        router.push("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const logout = () => {
     localStorage.removeItem("access_token");
@@ -59,7 +75,9 @@ export default function TasksPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-blue-700">Mis tareas</h1>
-          <CreateTaskModal onCreate={reloadTasks} />
+
+          <CreateTaskModal onCreate={loadTasks} />
+
           <button
             onClick={logout}
             className="flex items-center gap-2 text-sm text-blue-600 hover:text-red-500 transition"
@@ -74,59 +92,62 @@ export default function TasksPage() {
           </div>
 
           <button
-            onClick={() => setFilter("all")}
+            onClick={() => applyFilter("all")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+              ? "bg-blue-600 text-white"
+              : "bg-blue-100 text-blue-700 hover:bg-blue-200"
               }`}
           >
             Todas
           </button>
 
           <button
-            onClick={() => setFilter("pending")}
+            onClick={() => applyFilter("pending")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "pending"
-                ? "bg-orange-500 text-white"
-                : "bg-orange-100 text-orange-700 hover:bg-orange-200"
+              ? "bg-orange-500 text-white"
+              : "bg-orange-100 text-orange-700 hover:bg-orange-200"
               }`}
           >
             Pendientes
           </button>
 
           <button
-            onClick={() => setFilter("in_progress")}
+            onClick={() => applyFilter("in_progress")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "in_progress"
-                ? "bg-yellow-500 text-white"
-                : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+              ? "bg-yellow-500 text-white"
+              : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
               }`}
           >
             En progreso
           </button>
 
           <button
-            onClick={() => setFilter("completed")}
+            onClick={() => applyFilter("completed")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === "completed"
-                ? "bg-green-500 text-white"
-                : "bg-green-100 text-green-700 hover:bg-green-200"
+              ? "bg-green-500 text-white"
+              : "bg-green-100 text-green-700 hover:bg-green-200"
               }`}
           >
             Completadas
           </button>
         </div>
 
+
         {loading ? (
           <p className="text-center text-gray-600">Cargando tareas...</p>
-        ) : filteredTasks.length === 0 ? (
+        ) : tasks.length === 0 ? (
           <p className="text-center text-gray-500">No hay tareas para mostrar</p>
         ) : (
           <div className="grid gap-4">
-            {filteredTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onUpdated={reloadTasks}
-              />
-            ))}
+            {tasks.length === 0 ? (
+              <p className="text-center text-gray-500">No hay tareas para mostrar</p>
+            ) : (
+              <div className="grid gap-4">
+                {tasks.map((task) => (
+                  <TaskCard key={task.id} task={task} onUpdated={loadTasks} />
+                ))}
+              </div>
+            )}
 
           </div>
         )}

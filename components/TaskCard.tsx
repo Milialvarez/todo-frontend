@@ -31,6 +31,7 @@ export default function TaskCard({
             </div>
 
             <div className="flex flex-col items-end gap-3">
+                {/* STATUS */}
                 <div className="flex items-center gap-2 text-sm font-medium">
                     {task.status === "pending" && (
                         <span className="flex items-center gap-1 text-orange-600">
@@ -49,6 +50,7 @@ export default function TaskCard({
                     )}
                 </div>
 
+                {/* ACCIONES */}
                 <div className="flex items-center gap-3">
                     <EditTaskModal task={task} onUpdated={onUpdated} />
                     <DeleteTaskButton
