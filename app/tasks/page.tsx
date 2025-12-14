@@ -65,10 +65,22 @@ export default function TasksPage() {
   };
 
 
-  const logout = () => {
-    localStorage.removeItem("access_token");
-    router.push("/login");
-  };
+  const logout = async () => {
+  const token = localStorage.getItem("access_token");
+
+  if (token) {
+    await fetch("http://localhost:8000/auth/logout", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  localStorage.removeItem("access_token");
+  router.push("/login");
+};
+
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-blue-100 p-6">
