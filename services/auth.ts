@@ -19,10 +19,10 @@ export async function registerUser(data: RegisterData) {
   return res.json()
 }
 
-export async function loginUser(data: LoginData) {
-  const formData = new URLSearchParams()
-  formData.append("username", data.email) 
-  formData.append("password", data.password)
+export async function loginUser(email: string, password: string) {
+  const formData = new URLSearchParams();
+  formData.append("username", email);
+  formData.append("password", password);
 
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
@@ -30,12 +30,12 @@ export async function loginUser(data: LoginData) {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: formData.toString(),
-  })
+  });
 
   if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.detail || "Invalid credentials")
+    const err = await res.json();
+    throw new Error(err.detail || "Error al iniciar sesión");
   }
 
-  return res.json()
+  return res.json(); 
 }
