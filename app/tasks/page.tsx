@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import CreateTaskModal from "@/components/CreateTaskModal";
 import { CheckCircle2, Clock, ListTodo, LogOut, Filter } from "lucide-react";
 
 interface Task {
@@ -43,6 +44,10 @@ export default function TasksPage() {
   const filteredTasks =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
 
+  const reloadTasks = () => {
+    router.push("/tasks")
+  };
+
   const logout = () => {
     localStorage.removeItem("access_token");
     router.push("/login");
@@ -53,6 +58,7 @@ export default function TasksPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-blue-700">Mis tareas</h1>
+          <CreateTaskModal onCreate={reloadTasks} />
           <button
             onClick={logout}
             className="flex items-center gap-2 text-sm text-blue-600 hover:text-red-500 transition"
